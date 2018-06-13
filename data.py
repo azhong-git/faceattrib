@@ -2,30 +2,20 @@ import os
 import math
 import cv2
 import numpy as np
+import pickle
 
 def load_lfw_data(image_dir, attributes_path, input_shape = (224, 224, 3), random=True, limit = -1):
   assert os.path.isfile(attributes_path), "Annotation '" + attributes_path + "' not found."
-  keys = []
-  header = False
-  lines = []
-  with open(attributes_path) as fi:
-    for line in fi:
-      if not header:
-        header = True
-        continue
-      if not keys:
-        keys = line.rstrip().split('\t')
-        continue
-      lines.append(line.rstrip().split('\t'))
-  labels = keys[3:]
+  keys_lines = pickle.load(open(attributes_path, 'rb'))
+  keys = keys_lines['header']
+  lines = keys_lines['lines']
+  labels = keys[2:]
+  if random:
+      np.random.shuffle(lines)
 
   faces = []
   attributes = []
-  raw_attributes = []
   count = 0
-  if random:
-      # random shuffle
-      np.random.shuffle(lines)
   for line in lines:
       image_path = os.path.join(image_dir, ('_'.join(line[0].split())))
       image_path += '_{:04}.jpg'.format(int(line[1]))
@@ -33,18 +23,7 @@ def load_lfw_data(image_dir, attributes_path, input_shape = (224, 224, 3), rando
       face = cv2.imread(image_path)
       face = cv2.resize(face, input_shape[:2])
       faces.append(face.astype('float32'))
-      attribute = []
-      raw_attribute = []
-      for i in range(2, len(line)):
-          x = float(line[i])
-          if x > 0:
-              val = 1
-          else:
-              val = 0
-          attribute.append(val)
-          raw_attribute.append(x)
-      attributes.append(attribute)
-      raw_attributes.append(raw_attribute)
+      attributes.append(line[2:])
       count += 1
       if limit != -1 and count > limit:
           break
@@ -54,8 +33,7 @@ def load_lfw_data(image_dir, attributes_path, input_shape = (224, 224, 3), rando
   faces = faces - 0.5
   faces = faces * 2.0
   attribtes = np.array(attributes)
-  raw_attribtes = np.array(raw_attributes)
-  return (faces, attributes, raw_attributes, labels)
+  return (faces, attributes, labels)
 
 def split_data_by_ratio(x, y, split=.2):
     num_samples = len(x)
