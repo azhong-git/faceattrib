@@ -7,6 +7,13 @@ from keras.models import Model
 from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
 
+from keras.backend.tensorflow_backend import set_session
+import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allocator_type = 'BFC'
+# config.gpu_options.per_process_gpu_memory_fraction = 0.5
+set_session(tf.Session(config=config))
+
 import datetime
 import os
 import pickle
@@ -26,7 +33,7 @@ validation_split = .2
 verbose = 1
 num_classes = 7
 patience = 50
-use_generator=False
+use_generator=True
 lfw_data = '/data/lfw'
 attributes_path = os.path.join(lfw_data, 'lfw_header_lines_45.p')
 images_path = os.path.join(lfw_data, 'lfw_all_funneled_face_crop_l_0.3_r_0.3_t_0.4_d_0.2/all')
@@ -99,7 +106,7 @@ reduce_lr = ReduceLROnPlateau('val_loss', factor=0.1,
                               patience=int(patience/5), verbose=1)
 trained_models_path = base_path + 'face_attrib_' + model_name
 model_names = trained_models_path + '.{epoch:02d}-{val_loss:.2f}-{loss:.2f}.hdf5'
-model_checkpoint = ModelCheckpoint(model_names, 'val_loss', verbose=1,
+model_checkpoint = ModelCheckpoint(model_names, 'val_acc', verbose=1,
                                    save_best_only=True)
 callbacks = [model_checkpoint, csv_logger, early_stop, reduce_lr]
 
