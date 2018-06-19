@@ -31,7 +31,8 @@ if platform == 'darwin':
 
 batch_size = 64
 num_epochs = 100000
-input_shape = (224, 224, 3)
+# input_shape = (224, 224, 3)
+input_shape = (192, 192, 3)
 alpha=1.0
 validation_split = .2
 verbose = 1
