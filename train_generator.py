@@ -1,7 +1,3 @@
-# use only one gpu
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
-
 from keras.applications.mobilenet import MobileNet
 from keras.callbacks import CSVLogger, ModelCheckpoint, EarlyStopping
 from keras.callbacks import ReduceLROnPlateau
@@ -31,9 +27,9 @@ if platform == 'darwin':
 
 batch_size = 64
 num_epochs = 100000
-# input_shape = (224, 224, 3)
-input_shape = (192, 192, 3)
-alpha=1.0
+input_shape = (224, 224, 3)
+# input_shape = (192, 192, 3)
+alpha=0.5
 validation_split = .2
 verbose = 1
 patience = 50
@@ -48,7 +44,7 @@ elif data_type == 'celeba':
     train_images_path = os.path.join(data_dir, 'Img/img_align_celeba_crop_middle_train/')
     val_images_path = os.path.join(data_dir, 'Img/img_align_celeba_crop_middle_val/')
     test_images_path = os.path.join(data_dir, 'Img/img_align_celeba_crop_middle_test/')
-    attributes_path = os.path.join('.', 'celeba_header_lines_40.p')
+    attributes_path = os.path.join('.', 'celeba_header_lines_45.p')
 else:
     assert False, data_type + ' not supported'
 
@@ -113,13 +109,14 @@ model.summary()
 log_file_path = base_path + 'face_attrib_training.log'
 csv_logger = CSVLogger(log_file_path, append=False)
 early_stop = EarlyStopping('val_loss', patience=patience)
-reduce_lr = ReduceLROnPlateau('val_loss', factor=0.1,
-                              patience=int(patience/5), verbose=1)
+#reduce_lr = ReduceLROnPlateau('val_loss', factor=0.1,
+#                               patience=int(patience/5), verbose=1)
 trained_models_path = base_path + 'face_attrib_' + model_name
 model_names = trained_models_path + '.{epoch:02d}-{val_loss:.2f}-{loss:.2f}.hdf5'
 model_checkpoint = ModelCheckpoint(model_names, 'val_acc', verbose=1,
                                    save_best_only=True)
-callbacks = [model_checkpoint, csv_logger, early_stop, reduce_lr]
+#callbacks = [model_checkpoint, csv_logger, early_stop, reduce_lr]
+callbacks = [model_checkpoint, csv_logger, early_stop]
 
 model.fit_generator(train_generator,
                     steps_per_epoch = 2000,
