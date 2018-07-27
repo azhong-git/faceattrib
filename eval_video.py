@@ -9,7 +9,7 @@ w_ext_ratio = [0.3, 0.3]
 h_ext_ratio = [0.4, 0.20]
 take_selfie = False
 
-from labels import LABELS_40
+from labels import LABELS_40, LABELS_45
 import keras
 from keras.models import load_model
 # definte relu6
@@ -17,7 +17,7 @@ from tensorflow.python.keras import backend as K
 def relu6(x):
     return K.relu(x, max_value=6)
 
-model = load_model('models/mobilenet_1.0_224_2018_06_18_16_08_08/face_attrib_mobilenet_1.0_224.10-0.18-0.17.hdf5',
+model = load_model('models/mobilenet_0.5_224_2018_07_26_16_23_42/face_attrib_mobilenet_0.5_224.19-0.17-0.15.hdf5',
                    custom_objects={'relu6': relu6})
 
 while True:
@@ -61,8 +61,8 @@ while True:
 
         cv2.imshow('face_crop', face_crop_bgr)
         print('---------------------------------------------------------------------------------')
-        for i in range(len(LABELS_40)):
-            print('{}, {:.02f}'.format(LABELS_40[sorted_inds[i]], val_predicted[0][sorted_inds[i]]))
+        for i in range(len(LABELS_45)):
+            print('{}, {:.02f}'.format(LABELS_45[sorted_inds[i]], val_predicted[0][sorted_inds[i]]))
         take_selfie = False
 
     cv2.imshow('window_frame', bgr_image)
