@@ -28,8 +28,8 @@ if platform == 'darwin':
 batch_size = 64
 num_epochs = 100000
 input_shape = (224, 224, 3)
-# input_shape = (192, 192, 3)
-alpha=0.5
+#input_shape = (192, 192, 3)
+alpha=1
 validation_split = .2
 verbose = 1
 patience = 50
@@ -109,14 +109,14 @@ model.summary()
 log_file_path = base_path + 'face_attrib_training.log'
 csv_logger = CSVLogger(log_file_path, append=False)
 early_stop = EarlyStopping('val_loss', patience=patience)
-#reduce_lr = ReduceLROnPlateau('val_loss', factor=0.1,
-#                               patience=int(patience/5), verbose=1)
+reduce_lr = ReduceLROnPlateau('val_loss', factor=0.1,
+                              patience=int(patience/5), verbose=1)
 trained_models_path = base_path + 'face_attrib_' + model_name
 model_names = trained_models_path + '.{epoch:02d}-{val_loss:.2f}-{loss:.2f}.hdf5'
 model_checkpoint = ModelCheckpoint(model_names, 'val_acc', verbose=1,
                                    save_best_only=True)
-#callbacks = [model_checkpoint, csv_logger, early_stop, reduce_lr]
-callbacks = [model_checkpoint, csv_logger, early_stop]
+callbacks = [model_checkpoint, csv_logger, early_stop, reduce_lr]
+# callbacks = [model_checkpoint, csv_logger, early_stop]
 
 model.fit_generator(train_generator,
                     steps_per_epoch = 2000,
